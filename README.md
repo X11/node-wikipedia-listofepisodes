@@ -1,5 +1,4 @@
-#
-Wikipedia List of Episodes parser
+# Wikipedia List of Episodes parser
 
 Simple node.js parser for wikipedia List of episodes pages. Currently only supports list of episodes pages and not sub-sections with episodes.
 
