@@ -5,11 +5,12 @@ var request = require('request'),
 
 
 // The keys we gotta grab, index:key
-var keys = {
-    0: "sID",
-    1: "episode",
-    2: "title",
-    5: "airdate"
+// Leave the whitespace at the end.
+var rename = {
+    "sid": ["nooverall"],
+    "episode": ["no", "no inseason"],
+    "title": ["title"],
+    "airdate": ["original air date"],
 };
 
 module.exports = (req) => new Promise((resolve, reject) => {
@@ -35,7 +36,7 @@ module.exports = (req) => new Promise((resolve, reject) => {
 
         tables.each((t, table) => {
             // get all episodes from the season
-            response.episodes = response.episodes.concat(getEpisodes($, table, seasons[t]));
+            response.episodes = response.episodes.concat(getEpisodes($, table, seasons[t] || (t+1)));
         });
 
         return resolve(response);
@@ -73,11 +74,32 @@ function getTables($, section) {
 function getEpisodes($, table, season) {
 
     var episodes = [];
+    var keys = {};
+
+    var row = $(table).children()[0];
+    $(row).children().each((j, data) => {
+
+        // remove reference links
+        $(data).find('.reference').empty();
+
+        var s = $(data).text();
+        s = s.trim();
+        s = s.replace(/[^a-zA-Z ]/g, "");
+        s = s.toLowerCase();
+        console.log(s);
+
+        for (var name in rename) {
+            if (rename[name].indexOf(s) > -1) {
+                console.log("NEW: ", name);
+                keys[j] = name;
+            }
+        }
+
+    });
 
     // loop the rows;
     $(table).children().each((i, row) => {
 
-        // if its the heading we skip it
         if (i === 0) return true;
 
         // current episode
